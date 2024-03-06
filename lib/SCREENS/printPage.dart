@@ -149,7 +149,7 @@ class _PrintPageState extends State<PrintPage> {
                                       false), // For non-password field, you can set any initial value
                                   hintText: 'SalesMan',
                                   prefixIcon: Icons.person,
-                                  typeoffld: TextInputType.text,
+                                  typeoffld: TextInputType.number,
                                   validator: (text) {
                                     if (text == null || text.isEmpty) {
                                       return 'Please Enter SalesMan';

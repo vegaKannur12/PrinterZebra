@@ -218,12 +218,12 @@ class PrintMethod extends ChangeNotifier {
     // List<Map> tableDatalist=[];
     // tableDatalist = await BarcodeDB.instance.allDetails();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String pro=prefs.getString("prof_string")!;
+    String pro=prefs.getString("prof_string")!.toUpperCase();
     print("profil-------------->$pro");
     String bcode = pro
-        .replaceAll("<COMPANY>", comname.toString())
-        .replaceAll("<Code>", barcode)
-        .replaceAll("<Qty>", qty).replaceAll("<SM>", sman);
+        .replaceAll("<COMPANY>".toUpperCase(), comname.toString())
+        .replaceAll("<Code>".toUpperCase(), barcode)
+        .replaceAll("<Qty>".toUpperCase(), qty).replaceAll("<SM>".toUpperCase(), sman);
     print("cfc---------------$bcode");
     if (selectedPrinter == null) return;
     // final codes =
