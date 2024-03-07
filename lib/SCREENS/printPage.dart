@@ -33,7 +33,8 @@ class _PrintPageState extends State<PrintPage> {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.BARCODE);
       print(barcodeScanRes);
-    } on PlatformException {
+    } 
+    on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
     // If the widget was removed from the tree while the asynchronous platform
@@ -66,9 +67,9 @@ class _PrintPageState extends State<PrintPage> {
                   const SizedBox(
                     height: 5,
                   ),
-                  Card(
+                  Card(elevation: 3,
                     child: Container(
-                      padding: EdgeInsets.only(right: 10, left: 10),
+                      padding: EdgeInsets.only(right: 5, left: 5),
                       width: 320,
                       height: 280,
                       decoration: BoxDecoration(
@@ -82,8 +83,9 @@ class _PrintPageState extends State<PrintPage> {
                             children: [
                               SizedBox(
                                 height: 50,
-                                width: 250,
+                                width: 255,
                                 child: Widget_TextField(
+                                  isSuffix: true,
                                   controller: barcode_ctrl,
                                   obscureNotifier: ValueNotifier<bool>(
                                       false), // For non-password field, you can set any initial value
@@ -97,7 +99,7 @@ class _PrintPageState extends State<PrintPage> {
                                     return null;
                                   },
                                 ),
-                              ),
+                              ),SizedBox(width: 5,),
                               IconButton(
                                 icon: Image.asset(
                                   "assets/barscan.png",
@@ -117,8 +119,9 @@ class _PrintPageState extends State<PrintPage> {
                             children: [
                               SizedBox(
                                 height: 50,
-                                width: 250,
+                                width: 255,
                                 child: Widget_TextField(
+                                  isSuffix: true,
                                   controller: qty_ctrl,
                                   obscureNotifier: ValueNotifier<bool>(
                                       false), // For non-password field, you can set any initial value
@@ -142,14 +145,17 @@ class _PrintPageState extends State<PrintPage> {
                             children: [
                               SizedBox(
                                 height: 50,
-                                width: 250,
+                                width: 255,
                                 child: Widget_TextField(
+                                  isSuffix: true,
                                   controller: sale_ctrl,
                                   obscureNotifier: ValueNotifier<bool>(
                                       false), // For non-password field, you can set any initial value
                                   hintText: 'SalesMan',
                                   prefixIcon: Icons.person,
+                                  
                                   typeoffld: TextInputType.number,
+                                  
                                   validator: (text) {
                                     if (text == null || text.isEmpty) {
                                       return 'Please Enter SalesMan';
@@ -186,12 +192,16 @@ class _PrintPageState extends State<PrintPage> {
                         foregroundColor: Colors.white,
                         elevation: 0,
                       ),
-                      onPressed: () {
+                      onPressed: ()  {
                         if (_formKey.currentState!.validate()) {
                           value.printLabel(
                               barcode_ctrl.text.toString(),
                               qty_ctrl.text.toString(),
                               sale_ctrl.text.toString());
+
+                              barcode_ctrl.clear();
+                              qty_ctrl.clear();
+                              sale_ctrl.clear();
                           // "${barcode_ctrl.text}\u0023${qty_ctrl.text}");
                         }
                       },

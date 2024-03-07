@@ -6,7 +6,7 @@ class Widget_TextField extends StatelessWidget {
   final ValueNotifier<bool> obscureNotifier;
   final String hintText;
   final IconData prefixIcon;
-  final bool isPassword;
+  final bool isSuffix;
   final TextInputType typeoffld;
   final String? Function(String?) validator;
 
@@ -15,7 +15,7 @@ class Widget_TextField extends StatelessWidget {
     required this.obscureNotifier,
     required this.hintText,
     required this.prefixIcon,
-    this.isPassword = false,
+    this.isSuffix = false,
     required this.validator,
     required this.typeoffld,
   });
@@ -27,7 +27,7 @@ class Widget_TextField extends StatelessWidget {
       builder: (context, isObscure, child) {
         return TextFormField(keyboardType: typeoffld,
           controller: controller,
-          obscureText: isPassword ? isObscure : false,
+          // obscureText: isPassword ? isObscure : false,
           validator: validator,
           decoration: InputDecoration(
             contentPadding:
@@ -48,14 +48,13 @@ class Widget_TextField extends StatelessWidget {
                   color: Color.fromARGB(255, 119, 119, 119), width: 1),
             ),
             prefixIcon: Icon(prefixIcon, size: 16),
-            suffixIcon: isPassword
+            suffixIcon: isSuffix
                 ? IconButton(
                     icon: Icon(
-                      isObscure ? Icons.visibility_off : Icons.visibility,
-                      color: Theme.of(context).secondaryHeaderColor,
+                      Icons.close,color: Colors.black45,
                     ),
                     onPressed: () {
-                      obscureNotifier.value = !isObscure;
+                      controller.clear();
                     },
                   )
                 : null,
