@@ -8,7 +8,7 @@ import 'package:simplefluttre/COMPONENTS/network_connectivity.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class PrintMethod extends ChangeNotifier {
+class PrintController extends ChangeNotifier {
   List label_list = [];
   List config_data = [];
   List detail_data = [];
@@ -27,7 +27,7 @@ class PrintMethod extends ChangeNotifier {
   BluetoothDevice? selectedPrinter;
   String profile_string = '';
 
-  getprintProfile(BuildContext context, String pr_id,int ind) async {
+  getprintProfile(BuildContext context, String pr_id, int ind) async {
     NetConnection.networkConnection(context).then((value) async {
       if (value == true) {
         dynamic_code = "";
@@ -58,7 +58,7 @@ class PrintMethod extends ChangeNotifier {
             }
             print("heloooooooooooooo prid 0$pr_id");
             print("label list-------------#####---$label_list");
-            
+
             isprofileLoading = false;
             notifyListeners();
           } else {
@@ -68,40 +68,39 @@ class PrintMethod extends ChangeNotifier {
             }
             // print("config------------>$config_data");
             dynamic_code = config_data[0]['code'];
-              
-            print("Dymanic_CODE_----$dynamic_code");
-          }
 
-          await BarcodeDB.instance.deleteAllDetails();
-          await BarcodeDB.instance
-              .insertDetails(int.parse(pr_id), dynamic_code.toString());
-          print("inserted to local DDDDDDDDDDDDDBBBBBBB----");
-          getLabelProfile();
-          setLabelName(label_list[ind]['name'].toString());
-          notifyListeners();
-          isprofileLoading = false;
-          // showDialog(
-          //       context: context,
-          //       builder: (BuildContext context) {
-          //         return AlertDialog(
-          //           title: Text('Alert'),
-          //           content: Text('Config downloaded'),
-          //           actions: <Widget>[
-          //             TextButton(
-          //               onPressed: () {
-          //                 // Close the AlertDialog
-          //                 Navigator.of(context).pop();
-          //               },
-          //               child: Text('OK'),
-          //             ),
-          //           ],
-          //         );
-          //       },
-          //     );
-          //     notifyListeners();
-          //   }
-          //  isprofileLoading=false;
-          //  notifyListeners();
+            print("Dymanic_CODE_----$dynamic_code");
+            await BarcodeDB.instance.deleteAllDetails();
+            await BarcodeDB.instance
+                .insertDetails(int.parse(pr_id), dynamic_code.toString());
+            print("inserted to local DDDDDDDDDDDDDBBBBBBB----");
+            getLabelProfile();
+            setLabelName(label_list[ind]['name'].toString());
+
+            isprofileLoading = false;
+
+            notifyListeners();
+            showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Alert'),
+                  content: Text('Config downloaded'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        // Close the AlertDialog
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/bluetoothhome');
+                      },
+                      child: Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         } catch (e) {
           print(e);
           return null;
@@ -112,8 +111,9 @@ class PrintMethod extends ChangeNotifier {
 
   setLabelName(String lName) async {
     label_name = lName;
-    SharedPreferences pref=await SharedPreferences.getInstance();
-    pref.setString("label_name",label_name);
+    notifyListeners();
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString("label_name", label_name);
     notifyListeners();
   }
 
@@ -202,6 +202,13 @@ class PrintMethod extends ChangeNotifier {
     });
   }
 
+  setProfileONEDit(String edited) async {
+    profile_string = edited;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("prof_string", profile_string);
+    notifyListeners();
+  }
+
   getLabelProfile() async {
     profile_string = "";
     notifyListeners();
@@ -218,12 +225,13 @@ class PrintMethod extends ChangeNotifier {
     // List<Map> tableDatalist=[];
     // tableDatalist = await BarcodeDB.instance.allDetails();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String pro=prefs.getString("prof_string")!.toUpperCase();
+    String pro = prefs.getString("prof_string")!.toUpperCase();
     print("profil-------------->$pro");
     String bcode = pro
         .replaceAll("<COMPANY>".toUpperCase(), comname.toString())
         .replaceAll("<Code>".toUpperCase(), barcode)
-        .replaceAll("<Qty>".toUpperCase(), qty).replaceAll("<SM>".toUpperCase(), sman);
+        .replaceAll("<Qty>".toUpperCase(), qty)
+        .replaceAll("<SM>".toUpperCase(), sman);
     print("cfc---------------$bcode");
     if (selectedPrinter == null) return;
     // final codes =

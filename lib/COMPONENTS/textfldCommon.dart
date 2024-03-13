@@ -7,6 +7,8 @@ class Widget_TextField extends StatelessWidget {
   final String hintText;
   final IconData prefixIcon;
   final bool isSuffix;
+  final bool isPassword;
+  final FocusNode? focus;
   final TextInputType typeoffld;
   final String? Function(String?) validator;
 
@@ -16,6 +18,8 @@ class Widget_TextField extends StatelessWidget {
     required this.hintText,
     required this.prefixIcon,
     this.isSuffix = false,
+    this.isPassword = false,
+    this.focus,
     required this.validator,
     required this.typeoffld,
   });
@@ -27,7 +31,8 @@ class Widget_TextField extends StatelessWidget {
       builder: (context, isObscure, child) {
         return TextFormField(keyboardType: typeoffld,
           controller: controller,
-          // obscureText: isPassword ? isObscure : false,
+           obscureText: isPassword ? isObscure : false,
+           focusNode:focus,
           validator: validator,
           decoration: InputDecoration(
             contentPadding:

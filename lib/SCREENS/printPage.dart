@@ -50,14 +50,14 @@ class _PrintPageState extends State<PrintPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return Scaffold(backgroundColor: Colors.red[50],
+      appBar: AppBar(backgroundColor: Colors.red[50],
           // actions: [
           //   IconButton(onPressed: () {}, icon: Icon(Icons.document_scanner_sharp))
           // ],
           ),
-      body: Consumer<PrintMethod>(
-        builder: (BuildContext context, PrintMethod value, Widget? child) {
+      body: Consumer<PrintController>(
+        builder: (BuildContext context, PrintController value, Widget? child) {
           return Center(
             child: Form(
               key: _formKey,

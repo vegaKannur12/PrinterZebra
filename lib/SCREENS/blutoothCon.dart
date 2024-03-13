@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simplefluttre/LOCALDB/localDb.dart';
 import 'package:simplefluttre/LOCALDB/tablelist.dart';
 import 'package:simplefluttre/COMPONENTS/custom_snackbar.dart';
-import 'package:simplefluttre/SCREENS/labelselect.dart';
+import 'package:simplefluttre/SCREENS/ADMIN/loginAdminDialog.dart';
 import 'package:simplefluttre/CONTROLLER/printClass.dart';
 import 'package:simplefluttre/SCREENS/printPage.dart';
 
@@ -18,15 +18,14 @@ class BluetoothConnection extends StatefulWidget {
 class _BluetoothConnectionState extends State<BluetoothConnection> {
   String pro = "";
   String pro_name = "";
-  // PrintMethod pm=PrintMethod();
+  // PrintController pm=PrintController();
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PrintMethod>(context, listen: false).discovery();
-
+      Provider.of<PrintController>(context, listen: false).discovery();
       // subscription to listen change status of bluetooth connection
-      Provider.of<PrintMethod>(context, listen: false).subStatus();
-      Provider.of<PrintMethod>(context, listen: false).scan();
+      Provider.of<PrintController>(context, listen: false).subStatus();
+      Provider.of<PrintController>(context, listen: false).scan();
       getProfile();
     });
     super.initState();
@@ -36,82 +35,68 @@ class _BluetoothConnectionState extends State<BluetoothConnection> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     pro = prefs.getString("prof_string")!;
     pro_name = prefs.getString("label_name")!;
+    print("proofil = $pro");
+    print("proofilNM = $pro_name");
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isSelected = false;
     return MaterialApp(
-      home: Scaffold(
+      home: Scaffold( backgroundColor: Color.fromARGB(255, 191, 217, 238),
         appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Color.fromARGB(255, 191, 217, 238),
           //  title: Center(child: Padding(
           //   padding: const EdgeInsets.only(top: 20),
           //   child: const Text('CONNECT PRINTER',style: TextStyle(color: Colors.green,fontWeight: FontWeight.w600),),
           // )),
-          title: IconButton(
-            onPressed: () async {
-              List<Map<String, dynamic>> list =
-                  await BarcodeDB.instance.getListOfTables();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TableList(list: list)),
-              );
-            },
-            icon: Icon(Icons.edit_document, color: Colors.white),
-          ),
+          // title: IconButton(
+          //   onPressed: () async {
+          //     List<Map<String, dynamic>> list =
+          //         await BarcodeDB.instance.getListOfTables();
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => TableList(list: list)),
+          //     );
+          //   },
+          //   icon: Icon(Icons.edit_document, color: Colors.white),
+          // ),
+           leading: BackButton(
+          color: Colors.black,onPressed: () {
+             Navigator.pop(context);
+          },
+        ),
           actions: [
-            Consumer<PrintMethod>(
-                builder: (BuildContext context, PrintMethod value,
+            Consumer<PrintController>(
+                builder: (BuildContext context, PrintController value,
                         Widget? child) =>
-                    pro == "" || pro == " "
-                        ? Container(
-                            height: 40,
-                            // decoration: BoxDecoration(color: Colors.amber),
-                            child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                    shape: StadiumBorder(
-                                        side: BorderSide(
-                                            color: Colors.yellow, width: 2))),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => LabelSelect()),
-                                  );
-                                  setState(() {});
+                    Row(
+                      children: [
+                        Text(
+                          pro_name.toString().toUpperCase(),
+                          style: TextStyle(fontSize: 18, color: Colors.black54,fontWeight: FontWeight.w600),
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              // LoginDialog l=LoginDialog();
+                              // l.dialogBuilder(context);
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return LoginDialog();
                                 },
-                                child: Text(
-                                  'Select Label',
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.white),
-                                )),
-                          )
-                        : Row(
-                            children: [
-                              Text(
-                                pro_name.toString(),
-                                style: TextStyle(
-                                    fontSize: 18, color: Colors.white),
-                              ),
-                              IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => LabelSelect()),
-                                    );
-                                    setState(() {});
-                                  },
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.yellow,
-                                  ))
-                            ],
-                          )),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.red,
+                            ))
+                      ],
+                    )),
           ],
         ),
-        body: Consumer<PrintMethod>(
-          builder: (BuildContext context, PrintMethod value, Widget? child) {
+        body: Consumer<PrintController>(
+          builder: (BuildContext context, PrintController value, Widget? child) {
             return Center(
               child: Container(
                 height: double.infinity,
@@ -126,7 +111,7 @@ class _BluetoothConnectionState extends State<BluetoothConnection> {
                       ),
                       IconButton(
                         onPressed: () {
-                          Provider.of<PrintMethod>(context, listen: false)
+                          Provider.of<PrintController>(context, listen: false)
                               .scan();
                         },
                         icon: const Padding(
@@ -142,9 +127,20 @@ class _BluetoothConnectionState extends State<BluetoothConnection> {
                                     (device) => ListTile(
                                       title: Text(device.name),
                                       subtitle: Text(device.address),
+                                      trailing: isSelected == true
+                                          ? Icon(
+                                              Icons.done,
+                                              color: Colors.green,
+                                            )
+                                          : SizedBox(),
+                                      selectedColor: Colors.blue,
                                       onTap: () {
                                         // do something
                                         value.selectDevice(device);
+                                        print('device====------------>$device');
+                                        setState(() {
+                                          isSelected = true;
+                                        });
                                       },
                                     ),
                                   )
@@ -177,15 +173,34 @@ class _BluetoothConnectionState extends State<BluetoothConnection> {
                                             snackbar.showSnackbar(
                                                 context, "Profile Missing", "");
                                           } else {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    PrintPage(),
-                                              ),
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                
+                                                  content: Text(
+                                                      'Connected Successfully'),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // Close the AlertDialog
+                                                        // Navigator.pop(context);
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                        Navigator.pushNamed(
+                                                            context,
+                                                            '/mainhome');
+                                                      },
+                                                      child: Text('OK'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
                                             );
                                           }
-                                        } else {
+                                        } 
+                                        else {
                                           CustomSnackbar snackbar =
                                               CustomSnackbar();
 
