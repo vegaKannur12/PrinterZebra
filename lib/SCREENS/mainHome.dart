@@ -22,9 +22,9 @@ class _MainHomeState extends State<MainHome> {
   // PrintController pm=PrintController();
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
       getProfile();
-    });
+    // });7
     super.initState();
   }
 

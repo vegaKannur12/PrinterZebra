@@ -60,13 +60,16 @@ class _LoginDialogState extends State<LoginDialog> {
                   if (_formKey.currentState!.validate()) {
                     if (usernameController.text.toLowerCase() == "vega" &&
                         passwordController.text.toLowerCase() == "321") {
+                       Navigator.of(context).pop();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => AdminHomePage(),
                         ),
                       );
-                    } else {
+                    } 
+                    else 
+                    {
                       setState(() {
                         loginError = true;
                       });

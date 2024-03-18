@@ -6,6 +6,7 @@ import 'package:simplefluttre/SCREENS/mainHome.dart';
 import 'package:simplefluttre/SCREENS/blutoothCon.dart';
 import 'package:simplefluttre/CONTROLLER/printClass.dart';
 import 'package:provider/provider.dart';
+import 'package:simplefluttre/SCREENS/splashscreen.dart';
 
 void main() {
   runApp(MultiProvider(
@@ -41,18 +42,21 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 145, 34, 108)),
         useMaterial3: true,
       ),
+      // initialRoute: '/splash',
       routes: {
-        '/mainhome': (context) => MainHome(),
         '/bluetoothhome': (context) => BluetoothConnection(),
+        // '/splash': (context) => SplashScreen(),
+        '/mainhome': (context) => MainHome(),
       },
-      home:
-          // LabelSelect(),
-          MainHome(),
+      home: SplashScreen(),
+      // LabelSelect(),
+      // MainHome(),
       // BluetoothConnection(),
-      // ConnectSelection()
+      // ConnectSelection(),
     );
   }
 }

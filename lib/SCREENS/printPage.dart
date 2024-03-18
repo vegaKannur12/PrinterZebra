@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:simplefluttre/COMPONENTS/textfldCommon.dart';
 import 'package:simplefluttre/CONTROLLER/printClass.dart';
+import 'package:simplefluttre/SCREENS/blutoothCon.dart';
+import 'package:simplefluttre/SCREENS/mainHome.dart';
 
 class PrintPage extends StatefulWidget {
   const PrintPage({
@@ -26,36 +28,55 @@ class _PrintPageState extends State<PrintPage> {
     super.initState();
   }
 
-  Future<void> scanBarcodeNormal() async {
+  Future<void> scanBarcodeNormal(String field) async {
     String barcodeScanRes;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      if (!mounted) return;
+      setState(() {
+        _scanBarcode = barcodeScanRes;
+        if (field == "bar") {
+          barcode_ctrl.text = _scanBarcode.toString().trim();
+          _scanBarcode = "";
+        } else if (field == "sale") {
+          sale_ctrl.text = _scanBarcode.toString().trim();
+          _scanBarcode = "";
+        }
+      });
       print(barcodeScanRes);
-    } 
-    on PlatformException {
+    } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _scanBarcode = barcodeScanRes;
-      barcode_ctrl.text = _scanBarcode;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.red[50],
-      appBar: AppBar(backgroundColor: Colors.red[50],
-          // actions: [
-          //   IconButton(onPressed: () {}, icon: Icon(Icons.document_scanner_sharp))
-          // ],
-          ),
+    return Scaffold(
+      backgroundColor: Colors.red[50],
+      appBar: AppBar(
+        backgroundColor: Colors.red[50],
+        actions: [
+          Consumer<PrintController>(builder:
+              (BuildContext context, PrintController value, Widget? child) {
+            return TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BluetoothConnection()),
+                  );
+                },
+                child: Row(
+                  children: [
+                    Text("Connected to: "),
+                    Text("${value.seldeviceName}"??"Select",style: TextStyle(),),
+                  ],
+                ));
+          })
+        ],
+      ),
       body: Consumer<PrintController>(
         builder: (BuildContext context, PrintController value, Widget? child) {
           return Center(
@@ -67,7 +88,8 @@ class _PrintPageState extends State<PrintPage> {
                   const SizedBox(
                     height: 5,
                   ),
-                  Card(elevation: 3,
+                  Card(
+                    elevation: 3,
                     child: Container(
                       padding: EdgeInsets.only(right: 5, left: 5),
                       width: 320,
@@ -99,7 +121,10 @@ class _PrintPageState extends State<PrintPage> {
                                     return null;
                                   },
                                 ),
-                              ),SizedBox(width: 5,),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
                               IconButton(
                                 icon: Image.asset(
                                   "assets/barscan.png",
@@ -107,7 +132,7 @@ class _PrintPageState extends State<PrintPage> {
                                   width: 30,
                                 ),
                                 onPressed: () {
-                                  scanBarcodeNormal();
+                                  scanBarcodeNormal("bar");
                                 },
                               ),
                             ],
@@ -153,9 +178,9 @@ class _PrintPageState extends State<PrintPage> {
                                       false), // For non-password field, you can set any initial value
                                   hintText: 'SalesMan',
                                   prefixIcon: Icons.person,
-                                  
+
                                   typeoffld: TextInputType.number,
-                                  
+
                                   validator: (text) {
                                     if (text == null || text.isEmpty) {
                                       return 'Please Enter SalesMan';
@@ -164,19 +189,25 @@ class _PrintPageState extends State<PrintPage> {
                                   },
                                 ),
                               ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              IconButton(
+                                icon: Image.asset(
+                                  "assets/barscan.png",
+                                  height: 40,
+                                  width: 30,
+                                ),
+                                onPressed: () {
+                                  scanBarcodeNormal("sale");
+                                },
+                              ),
                             ],
                           ),
                         ],
                       ),
                     ),
                   ),
-
-                  // TextButton(
-                  //     onPressed: () {
-                  //       print(
-                  //           "yyyyyyyyyyyyyyyyyyyyyyyyyy${barcode_ctrl.text}\u0023${qty_ctrl.text}");
-                  //     },
-                  //     child: Text("viewdata")),
                   const SizedBox(
                     height: 30,
                   ),
@@ -192,28 +223,22 @@ class _PrintPageState extends State<PrintPage> {
                         foregroundColor: Colors.white,
                         elevation: 0,
                       ),
-                      onPressed: ()  {
+                      onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           value.printLabel(
+                              context,
                               barcode_ctrl.text.toString(),
                               qty_ctrl.text.toString(),
                               sale_ctrl.text.toString());
 
-                              barcode_ctrl.clear();
-                              qty_ctrl.clear();
-                              sale_ctrl.clear();
+                          barcode_ctrl.clear();
+                          qty_ctrl.clear();
+                          sale_ctrl.clear();
                           // "${barcode_ctrl.text}\u0023${qty_ctrl.text}");
                         }
                       },
                     ),
                   ),
-
-                  // TextButton(
-                  //     onPressed: () {
-                  //       Provider.of<Controller>(context, listen: false)
-                  //           .getprintProfile(context);
-                  //     },
-                  //     child: Text("Dataaaa"))
                 ],
               ),
             ),

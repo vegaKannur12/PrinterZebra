@@ -2,11 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_simple_bluetooth_printer/flutter_simple_bluetooth_printer.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simplefluttre/COMPONENTS/custom_snackbar.dart';
+import 'package:simplefluttre/COMPONENTS/external_dir.dart';
 import 'package:simplefluttre/LOCALDB/localDb.dart';
 import 'package:simplefluttre/COMPONENTS/network_connectivity.dart';
 import 'package:http/http.dart' as http;
+import 'package:simplefluttre/SCREENS/authentication/login.dart';
 import 'dart:convert';
+
+import 'package:simplefluttre/SCREENS/mainHome.dart';
+import 'package:simplefluttre/model/registration_model.dart';
+import 'package:sql_conn/sql_conn.dart';
 
 class PrintController extends ChangeNotifier {
   List label_list = [];
@@ -19,6 +27,7 @@ class PrintController extends ChangeNotifier {
   var isBle = true;
   var isConnected = false;
   bool connectLoading = false;
+  bool isLoginLoading = false;
   String label_name = "";
   var devices = <BluetoothDevice>[];
   StreamSubscription<BTConnectState>? _subscriptionBtStatus;
@@ -26,13 +35,183 @@ class PrintController extends ChangeNotifier {
   String comname = "CFC KANNUR";
   BluetoothDevice? selectedPrinter;
   String profile_string = '';
+  bool downloaded=false;
+  String seldeviceName="";
+  //variables for reg & login
+  String? fp;
+  String? cid;
+  ExternalDir externalDir = ExternalDir();
+  String? sof;
+  bool isLoading = false;
+  String? appType;
+  String? cname;
+  List<CD> cD = [];
+
+  Future<RegistrationData?> postRegistration(
+      String companyCode,
+      String? fingerprints,
+      String phoneno,
+      String deviceinfo,
+      BuildContext context) async {
+    NetConnection.networkConnection(context).then((value) async {
+      // ignore: avoid_print
+      print("Text fp...$fingerprints---$companyCode---$phoneno---$deviceinfo");
+      // ignore: prefer_is_empty
+      if (companyCode.length >= 0) {
+        appType = companyCode.substring(10, 12);
+      }
+      if (value == true) {
+        try {
+          Uri url =
+              Uri.parse("https://trafiqerp.in/order/fj/get_registration.php");
+          Map body = {
+            'company_code': companyCode,
+            'fcode': fingerprints,
+            'deviceinfo': deviceinfo,
+            'phoneno': phoneno
+          };
+          // ignore: avoid_print
+          print("register body----$body");
+          isLoading = true;
+          notifyListeners();
+          http.Response response = await http.post(
+            url,
+            body: body,
+          );
+          // print("body $body");
+          var map = jsonDecode(response.body);
+          // ignore: avoid_print
+          print("regsiter map----$map");
+          RegistrationData regModel = RegistrationData.fromJson(map);
+
+          sof = regModel.sof;
+          fp = regModel.fp;
+          String? msg = regModel.msg;
+
+          if (sof == "1") {
+            if (appType == 'ST') {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              /////////////// insert into local db /////////////////////
+              String? fp1 = regModel.fp;
+
+              // ignore: avoid_print
+              print("fingerprint......$fp1");
+              prefs.setString("fp", fp!);
+              if (map["os"] == null || map["os"].isEmpty) {
+                isLoading = false;
+                notifyListeners();
+                CustomSnackbar snackbar = CustomSnackbar();
+                snackbar.showSnackbar(context, "Series is Missing", "");
+              } else {
+                cid = regModel.cid;
+                prefs.setString("cid", cid!);
+
+                cname = regModel.c_d![0].cnme;
+
+                prefs.setString("cname", cname!);
+                prefs.setString("os", regModel.os!);
+
+                // ignore: avoid_print
+                print("cid----cname-----$cid---$cname");
+                notifyListeners();
+
+                await externalDir.fileWrite(fp1!);
+
+                // ignore: duplicate_ignore
+                for (var item in regModel.c_d!) {
+                  // ignore: avoid_print
+                  print("ciddddddddd......$item");
+                  cD.add(item);
+                }
+                // verifyRegistration(context, "");
+
+                isLoading = false;
+                notifyListeners();
+
+                // await JeminiBorma.instance.deleteFromTableCommonQuery("companyRegistrationTable", "");                // ignore: use_build_context_synchronously
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              }
+            } else {
+              isLoading = false;
+              notifyListeners();
+              CustomSnackbar snackbar = CustomSnackbar();
+              // ignore: use_build_context_synchronously
+              snackbar.showSnackbar(context, "Invalid Apk Key", "");
+            }
+          }
+          /////////////////////////////////////////////////////
+          if (sof == "0") {
+            isLoading = false;
+            notifyListeners();
+            CustomSnackbar snackbar = CustomSnackbar();
+            // ignore: use_build_context_synchronously
+            snackbar.showSnackbar(context, msg.toString(), "");
+          }
+
+          notifyListeners();
+        } catch (e) {
+          // ignore: avoid_print
+          print(e);
+          return null;
+        }
+      }
+    });
+    return null;
+  }
+
+  getLogin(String userName, String password, BuildContext context) async {
+    try {
+      isLoginLoading = true;
+      notifyListeners();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      if (userName.toLowerCase() != "vega" ||
+          password.toLowerCase() != "vega") {
+        CustomSnackbar snackbar = CustomSnackbar();
+        // ignore: use_build_context_synchronously
+        snackbar.showSnackbar(context, "Incorrect Username or Password", "");
+        isLoginLoading = false;
+        notifyListeners();
+      } else {
+        prefs.setString("st_uname", userName);
+        prefs.setString("st_pwd", password);
+        // ignore: use_build_context_synchronously
+        // initDb(context, "from login");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainHome()),
+        );
+      }
+      isLoginLoading = false;
+      notifyListeners();
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+      return null;
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  getCidCname() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    cid = prefs.getString("cid")!;
+    cname = prefs.getString("cname")!;
+    print("cid = $cid,cname--$cname");
+  }
 
   getprintProfile(BuildContext context, String pr_id, int ind) async {
+  
     NetConnection.networkConnection(context).then((value) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        cid = prefs.getString("cid")!;
       if (value == true) {
         dynamic_code = "";
         notifyListeners();
         try {
+          downloaded=false;
           isprofileLoading = true;
           notifyListeners();
           Uri url =
@@ -40,9 +219,9 @@ class PrintController extends ChangeNotifier {
           Map body = {
             'print_id': pr_id,
             'type': "0",
+            'company_id':cid,
           };
           print("body----$body");
-
           http.Response response = await http.post(
             url,
             body: body,
@@ -61,6 +240,7 @@ class PrintController extends ChangeNotifier {
 
             isprofileLoading = false;
             notifyListeners();
+            return;
           } else {
             config_data.clear();
             for (var item in map["config_data"]) {
@@ -76,31 +256,17 @@ class PrintController extends ChangeNotifier {
             print("inserted to local DDDDDDDDDDDDDBBBBBBB----");
             getLabelProfile();
             setLabelName(label_list[ind]['name'].toString());
-
+            downloaded=true;
             isprofileLoading = false;
 
             notifyListeners();
-            showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Alert'),
-                  content: Text('Config downloaded'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        // Close the AlertDialog
-                        Navigator.of(context).pop();
-                        Navigator.pushNamed(context, '/bluetoothhome');
-                      },
-                      child: Text('OK'),
-                    ),
-                  ],
-                );
-              },
-            );
+            
           }
+
+          //     notifyListeners();
+          //   }
+          //  isprofileLoading=false;
+          //  notifyListeners();
         } catch (e) {
           print(e);
           return null;
@@ -108,7 +274,6 @@ class PrintController extends ChangeNotifier {
       }
     });
   }
-
   setLabelName(String lName) async {
     label_name = lName;
     notifyListeners();
@@ -177,6 +342,7 @@ class PrintController extends ChangeNotifier {
     }
 
     selectedPrinter = device;
+    seldeviceName=selectedPrinter!.name.toString();
     notifyListeners();
   }
 
@@ -221,19 +387,27 @@ class PrintController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void printLabel(String barcode, String qty, String sman) async {
+  void printLabel(
+      BuildContext context, String barcode, String qty, String sman) async {
     // List<Map> tableDatalist=[];
     // tableDatalist = await BarcodeDB.instance.allDetails();
+    await getCidCname();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String pro = prefs.getString("prof_string")!.toUpperCase();
+
     print("profil-------------->$pro");
     String bcode = pro
-        .replaceAll("<COMPANY>".toUpperCase(), comname.toString())
+        .replaceAll("<COMPANY>".toUpperCase(), cname.toString())
         .replaceAll("<Code>".toUpperCase(), barcode)
         .replaceAll("<Qty>".toUpperCase(), qty)
         .replaceAll("<SM>".toUpperCase(), sman);
     print("cfc---------------$bcode");
-    if (selectedPrinter == null) return;
+    if (selectedPrinter == null) {
+      CustomSnackbar snackbar = CustomSnackbar();
+      snackbar.showSnackbar(context, "Connect Printer", "");
+      return;
+    }
+
     // final codes =
     //     "^XA\r\n^MMT\r\n^PW384\r\n^LL0253\r\n^LS0\r\n^BY2,2,50^FT40,104^BCN,,N,N,,A\r\n^FDABC123456#5.25^FS\r\n^FT375,191^A0I,45,45^FH\\^FDABC123456#5.25^FS\r\n^FT374,27^A0I,23,24^FH\\^FDHello^FS\r\n^FT372,59^A0I,23,24^FH\\^FDSreya^FS\r\n^PQ1,0,1,Y^PQ1^XZ\r\n";
 
@@ -295,6 +469,7 @@ class PrintController extends ChangeNotifier {
         await bluetoothManager.disconnect();
       }
     } on BTException catch (e) {
+      await connectDevice();
       print(e);
     }
   }

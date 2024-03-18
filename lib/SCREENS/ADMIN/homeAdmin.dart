@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:simplefluttre/CONTROLLER/printClass.dart';
 import 'package:simplefluttre/SCREENS/ADMIN/editProfile.dart';
@@ -14,9 +15,12 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
+  String cid = "";
+  String pro_name = "";
   @override
   void initState() {
     // TODO: implement initState
+
     Provider.of<PrintController>(context, listen: false)
         .getprintProfile(context, "0", 0);
     super.initState();
@@ -78,14 +82,43 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                   child: Row(
                                     children: [
                                       IconButton(
-                                          onPressed: () {
-                                            Provider.of<PrintController>(context,
+                                          onPressed: () async {
+                                            print(
+                                                "printid--${value.label_list[index]['print_id']}");
+                                           await Provider.of<PrintController>(
+                                                    context,
                                                     listen: false)
                                                 .getprintProfile(
                                                     context,
                                                     value.label_list[index]
                                                         ['print_id'],
                                                     index);
+                                                    if (value.downloaded) {
+                                                       showDialog(barrierDismissible: false,
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text('Alert'),
+                                                  content:
+                                                      Text('Config downloaded'),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // Close the AlertDialog
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                        Navigator.pushNamed(
+                                                            context,
+                                                            '/bluetoothhome');
+                                                      },
+                                                      child: Text('OK'),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                                    }
+                                           
                                           },
                                           icon:
                                               // value.isprofileLoading && i==index?CircularProgressIndicator(color: Colors.white,) :
