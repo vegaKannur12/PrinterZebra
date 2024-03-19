@@ -1,17 +1,23 @@
-# simplefluttre
+ABOUT
+ To print Barcode,quantity,salesman in label
 
-A new Flutter project.
+Developed Using 
+ # Flutter Version: 3.19.0-13.0.pre.31
+ # Dart version : 3.4.0 (build 3.4.0-82.0.dev)
+ # Android SDK : 33.0.1 (Andriod 34)
+ # Visual Studio(2022) : version 17.6.5
+ # VS Code : version 1.87.0
+ # Flutter extension - version 3.84.0
 
-## Getting Started
+PRINTER
+ #  XPrinter(XP-P323B) - Thermal Label Printer
+     - Name: 4B-2033PA-A2EE
+     - Address: DD:0D:30:6E:A2:EE                          //Mode(EZD)  LabelMode
 
-This project is a starting point for a Flutter application.
+PLUGINS
+# Printing:
+      flutter_simple_bluetooth_printer: ^0.1.4            //Zebra printing code instead of tsc print
+# Barcode Scan:
+      flutter_barcode_scanner: ^2.0.0
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-"# PrinterZebra" 
+ 

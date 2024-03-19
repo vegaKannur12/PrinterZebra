@@ -104,11 +104,12 @@ class _BluetoothConnectionState extends State<BluetoothConnection> {
         body: PopScope(
           canPop: false,
           onPopInvoked: (bool didPop) {
-              if (!didPop) { 
-                Navigator.of(context).pop(true);
-                 Navigator.pushNamedAndRemoveUntil(context, '/mainhome', (route) => false);
-            //  Navigator.pushNamed(context, '/mainhome');
-              }
+            if (!didPop) {
+              Navigator.of(context).pop(true);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/mainhome', (route) => false);
+              //  Navigator.pushNamed(context, '/mainhome');
+            }
             // Navigator.pushAndRemoveUntil(
             //     context,
             //     MaterialPageRoute(builder: (context) => MainHome()),
@@ -265,6 +266,7 @@ class _BluetoothConnectionState extends State<BluetoothConnection> {
                                           }
                                           setState(() {
                                             value.isConnected = false;
+                                            value.seldeviceName = "";
                                           });
                                         },
                                   child: const Text("Disconnect",

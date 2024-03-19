@@ -68,12 +68,23 @@ class _PrintPageState extends State<PrintPage> {
                         builder: (context) => BluetoothConnection()),
                   );
                 },
-                child: Row(
-                  children: [
-                    Text("Connected to: "),
-                    Text("${value.seldeviceName}"??"Select",style: TextStyle(),),
-                  ],
-                ));
+                child: value.seldeviceName.toString() == " " ||
+                        value.seldeviceName.toString() == ""
+                    ? Text(
+                        "Connect Printer",
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                        ),
+                      )
+                    : Row(
+                        children: [
+                          Text("Connected to: "),
+                          Text(
+                            "${value.seldeviceName}",
+                            style: TextStyle(),
+                          ),
+                        ],
+                      ));
           })
         ],
       ),

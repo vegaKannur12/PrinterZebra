@@ -14,7 +14,7 @@ import 'dart:convert';
 
 import 'package:simplefluttre/SCREENS/mainHome.dart';
 import 'package:simplefluttre/model/registration_model.dart';
-import 'package:sql_conn/sql_conn.dart';
+
 
 class PrintController extends ChangeNotifier {
   List label_list = [];
@@ -35,8 +35,8 @@ class PrintController extends ChangeNotifier {
   String comname = "CFC KANNUR";
   BluetoothDevice? selectedPrinter;
   String profile_string = '';
-  bool downloaded=false;
-  String seldeviceName="";
+  bool downloaded = false;
+  String seldeviceName = "";
   //variables for reg & login
   String? fp;
   String? cid;
@@ -203,15 +203,14 @@ class PrintController extends ChangeNotifier {
   }
 
   getprintProfile(BuildContext context, String pr_id, int ind) async {
-  
     NetConnection.networkConnection(context).then((value) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        cid = prefs.getString("cid")!;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      cid = prefs.getString("cid")!;
       if (value == true) {
         dynamic_code = "";
         notifyListeners();
         try {
-          downloaded=false;
+          downloaded = false;
           isprofileLoading = true;
           notifyListeners();
           Uri url =
@@ -219,7 +218,7 @@ class PrintController extends ChangeNotifier {
           Map body = {
             'print_id': pr_id,
             'type': "0",
-            'company_id':cid,
+            'company_id': cid,
           };
           print("body----$body");
           http.Response response = await http.post(
@@ -256,11 +255,10 @@ class PrintController extends ChangeNotifier {
             print("inserted to local DDDDDDDDDDDDDBBBBBBB----");
             getLabelProfile();
             setLabelName(label_list[ind]['name'].toString());
-            downloaded=true;
+            downloaded = true;
             isprofileLoading = false;
 
             notifyListeners();
-            
           }
 
           //     notifyListeners();
@@ -274,6 +272,7 @@ class PrintController extends ChangeNotifier {
       }
     });
   }
+
   setLabelName(String lName) async {
     label_name = lName;
     notifyListeners();
@@ -340,9 +339,8 @@ class PrintController extends ChangeNotifier {
         await bluetoothManager.disconnect();
       }
     }
-
     selectedPrinter = device;
-    seldeviceName=selectedPrinter!.name.toString();
+    seldeviceName = selectedPrinter!.name.toString();
     notifyListeners();
   }
 

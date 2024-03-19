@@ -42,7 +42,7 @@ class _MainHomeState extends State<MainHome> {
     print("width = ${size.width}");
     print("height = ${size.height}");
     return MaterialApp(
-      home: Scaffold(backgroundColor: Color.fromARGB(255, 194, 235, 231),
+      home: Scaffold(backgroundColor: Colors.white,
         // appBar: AppBar(
         //   backgroundColor: Colors.green,
         //   actions: [
@@ -98,7 +98,7 @@ class _MainHomeState extends State<MainHome> {
                               end: Alignment.bottomRight,
                               colors: [
                                 Colors.black87,
-                                Color.fromARGB(255, 3, 141, 109),
+                                Colors.red,
                               ],
                               stops: [0.112, 0.789],
                             ),
@@ -160,7 +160,7 @@ class _MainHomeState extends State<MainHome> {
                             end: Alignment.bottomRight,
                             colors: [
                               Colors.black87,
-                              Color.fromARGB(255, 3, 141, 109),
+                              Colors.red,
                             ],
                             stops: [0.112, 0.789],
                           ),
